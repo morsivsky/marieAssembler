@@ -1,0 +1,4 @@
+example.txt
+result/*
+.vscode/*
+__pycache__/*
