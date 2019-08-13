@@ -10,6 +10,7 @@ class Line:
         self.label = ''
         self.opcode = ''
         self.operand = ''
+        self.hexOperand=0
         self.directVal = ''
         if len(self.tokens) == 3:
             self.label = self.tokens[0][:-1]

@@ -5,7 +5,7 @@ import outputManager
 def assemble():
     f = open('example.txt', 'r')
     allLines = f.read().split('\n')
-    startingAddress = 0x0
+    startingAddress = 0x100
     symTable = {}
     result = []
     viritualLineNumber = 0
@@ -23,19 +23,21 @@ def assemble():
     for line in result:
         if line.operand in symTable.keys():
             lbl = line.operand
-            line.operand = symTable[lbl].address
+            line.hexOperand = symTable[lbl].address
             symTable[lbl].refs.append(line.address)
+        if line.opcode.lower() == 'skipcond':
+            line.hexOperand =int(line.operand,16)
 
         output = 0
         if line.opcode.lower() not in ['dec', 'hex', 'halt', 'clear', 'input', 'output']:
             output = "0x{0:0=1X}{1:0=3X}".format(
-                InstructionSet[line.opcode.lower()], line.operand)
+                InstructionSet[line.opcode.lower()],line.hexOperand)
         elif line.opcode.lower() == 'dec':
-            output = "0x{0:0=4X}".format(int(line.operand))
+            output = "0x{0:0=4X}".format(line.hexOperand)
         elif line.opcode.lower() == 'hex':
-            output = "0x{0:0=4X}".format(line.operand)
+            output = "0x{0:0=4X}".format(line.hexOperand)
         else:
-            output = "0x{0:0=4X}".format(InstructionSet[line.opcode.lower()])
+            output = "0x{0:0=1X}{1:0=3X}".format(InstructionSet[line.opcode.lower()],0)
 
         line.hexaOutput = output
 
