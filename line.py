@@ -12,15 +12,17 @@ class Line:
         self.operand = ''
         self.hexOperand=0
         self.directVal = ''
-        if len(self.tokens) == 3:
+
+        i =0
+        if self.tokens[0][-1] ==',':
             self.label = self.tokens[0][:-1]
-            self.opcode = self.tokens[1]
-            self.operand = self.tokens[2]
-        if len(self.tokens) == 2:
-            self.opcode = self.tokens[0]
-            self.operand = self.tokens[1]
-        if len(self.tokens) == 1:
-            self.opcode = self.tokens[0]
+            i = 1
+
+        self.opcode = self.tokens[i]
+        i +=1
+
+        if i < len(self.tokens):
+            self.operand = self.tokens[i]
 
 class symbol:
     def __init__(self,address,refs):

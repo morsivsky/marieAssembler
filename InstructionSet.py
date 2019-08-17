@@ -1,4 +1,5 @@
 InstructionSet = {
+    'jns':0x0,
     'load': 0x1,
     'store': 0x2,
     'add': 0x3,

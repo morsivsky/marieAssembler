@@ -5,12 +5,12 @@ import outputManager
 def assemble():
     f = open('example.txt', 'r')
     allLines = f.read().split('\n')
-    startingAddress = 0x100
+    startingAddress = 0x0
     symTable = {}
     result = []
     viritualLineNumber = 0
     for i, line in enumerate(allLines):
-        if line == '':
+        if line =='' or line.isspace():
             continue
         newLine = Line( int(hex(viritualLineNumber), 16) + startingAddress, line, i)
         result.append(newLine)
@@ -28,18 +28,11 @@ def assemble():
         if line.opcode.lower() == 'skipcond':
             line.hexOperand =int(line.operand,16)
 
-        output = 0
-        if line.opcode.lower() not in ['dec', 'hex', 'halt', 'clear', 'input', 'output']:
-            output = "0x{0:0=1X}{1:0=3X}".format(
-                InstructionSet[line.opcode.lower()],line.hexOperand)
-        elif line.opcode.lower() == 'dec':
-            output = "0x{0:0=4X}".format(line.hexOperand)
-        elif line.opcode.lower() == 'hex':
-            output = "0x{0:0=4X}".format(line.hexOperand)
+        if line.opcode.lower() in ['hex','dec']:
+            line.hexaOutput = "0x{0:0=4X}".format(int(line.operand))
         else:
-            output = "0x{0:0=1X}{1:0=3X}".format(InstructionSet[line.opcode.lower()],0)
-
-        line.hexaOutput = output
+            line.hexaOutput = "0x{0:0=1X}{1:0=3X}".format(
+                InstructionSet[line.opcode.lower()],line.hexOperand)
 
     import os
     from shutil import rmtree
@@ -50,7 +43,8 @@ def assemble():
 
     outputManager.createLstFile(result, startingAddress,'./result')
     outputManager.createSymFile(symTable,'./result')
-    outputManager.createObjFile(result,'./result')
+    outputManager.createObjFile(result,symTable,"test",startingAddress,'./result')
+
 
 if __name__ == "__main__":
     assemble()
