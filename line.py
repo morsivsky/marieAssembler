@@ -41,33 +41,37 @@ class output:
         self.extDefs= {}
         self.extRefs={}
         self.symbolTable={}
+            
+    def isPreProcessorLine(self,string):
+        return any(['ORG' in string,'EXTDEF' in string,'EXTREF' in string])
+        
 
-    def prepare(self):
+    def process(self):
         f = open(self.filePath, 'r')
         allLines = f.read().split('\n')
-        if 'org' not in allLines[0].tolower():
-            raise Exception("ORG Not Found")
-            
-        if 'extdef' in allLines[1].tolower():
+        if 'ORG' not in allLines[0]:
+            self.startAddress=0
+        else:
+            self.startAddress= int(allLines[0].replace('ORG',''),16)
+
+        if 'EXTDEF' in allLines[1]:
             defs = allLines[1].tolower() - 'extdef'
             for df in defs.split(','):
-                self.extDefs[df.strip()] =None
+                self.extDefs[df.strip()] = 0
 
-        if 'extref' in allLines[2].tolower():
+        if 'EXTREF' in allLines[2]:
             refs = allLines[1].tolower() - 'extref'
             refs = refs.split(',') 
             for rf in refs:
                 self.extRefs[rf.strip()] = None
-            
 
-    def process(self):
-        f = open('example.txt', 'r')
-        allLines = f.read().split('\n')
         symTable = {}
         result = []
         viritualLineNumber = 0
+
+
         for i, line in enumerate(allLines):
-            if line =='' or line.isspace():
+            if  line =='' or line.isspace() or self.isPreProcessorLine(line):
                 continue
             newLine = Line( int(hex(viritualLineNumber), 16) + self.startAddress, line, i)
             result.append(newLine)
@@ -80,8 +84,10 @@ class output:
         for line in result:
             if line.operand in symTable.keys():
                 lbl = line.operand
-                line.hexOperand = symTable[lbl].address
-                symTable[lbl].refs.append(line.address)
+                if lbl in symTable:
+                    line.hexOperand = symTable[lbl].address
+                    symTable[lbl].refs.append(line.address)
+               
             if line.opcode.lower() == 'skipcond':
                 line.hexOperand =int(line.operand,16)
 
@@ -93,5 +99,3 @@ class output:
 
 
         self.lines,self.symbolTable = result,symTable
-   
-

@@ -58,3 +58,11 @@ def createObjFile(lines,symTable,progName,startingAddress,targetdir):
 def divby(lst,n):
     for i in range(0,len(lst),n):
         yield lst[i:i+n]
+
+def clean(targetdir):
+    import os
+    from shutil import rmtree
+    if os.path.exists(targetdir):
+        rmtree(targetdir)
+
+    os.mkdir(targetdir)
