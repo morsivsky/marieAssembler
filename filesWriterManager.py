@@ -33,8 +33,8 @@ def createSymFile(symbolsTable,targetdir):
 
 def createObjFile(lines,symTable,progName,startingAddress,targetdir):
     H = "H {0} {1:0=5X} {2:0=5X} \n".format(progName, startingAddress,len(lines))
+
     T = ""
-    #tLines = 
     for t in divby(lines,4):
         T +="T {0:0=5X}".format(t[0].address)
         for line in t:
@@ -48,8 +48,8 @@ def createObjFile(lines,symTable,progName,startingAddress,targetdir):
             continue
         M += "M {0:0=5X}".format(symTable[sym].address) + "   " + ",".join(["{0:0=5X}".format(x) for x in symTable[sym].refs]) + "\n"
 
-
     E = "E {0:0=5X}".format(startingAddress)
+    
     f = open('{0}{1}'.format(targetdir,'/obj.txt'), 'w')
     f.write(H + T + M +E)
     f.close()

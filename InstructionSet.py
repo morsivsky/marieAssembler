@@ -12,7 +12,7 @@ InstructionSet = {
     'clear': 0xA,
     'addi': 0xB,
     'jumpi': 0xC,
-    'loudv': 0xD,
-    'addv': 0xE,
-    'subtv': 0xF,
+    # 'loudv': 0xD,
+    # 'addv': 0xE,
+    # 'subtv': 0xF,
 }

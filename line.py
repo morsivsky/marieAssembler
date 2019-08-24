@@ -34,7 +34,7 @@ class symbol:
 
 
 class output:
-    def __init__(self,filePath,startAddress):
+    def __init__(self,filePath,startAddress=0):
         self.filePath = filePath
         self.startAddress = startAddress
         self.lines=[]
@@ -49,45 +49,46 @@ class output:
     def process(self):
         f = open(self.filePath, 'r')
         allLines = f.read().split('\n')
-        if 'ORG' not in allLines[0]:
-            self.startAddress=0
-        else:
-            self.startAddress= int(allLines[0].replace('ORG',''),16)
-
-        if 'EXTDEF' in allLines[1]:
-            defs = allLines[1].tolower() - 'extdef'
-            for df in defs.split(','):
-                self.extDefs[df.strip()] = 0
-
-        if 'EXTREF' in allLines[2]:
-            refs = allLines[1].tolower() - 'extref'
-            refs = refs.split(',') 
-            for rf in refs:
-                self.extRefs[rf.strip()] = None
-
-        symTable = {}
-        result = []
+        if 'ORG' in allLines[0]:
+            self.startAddress= int(allLines[0].replace('ORG',''),16)            
+                
         viritualLineNumber = 0
 
-
         for i, line in enumerate(allLines):
-            if  line =='' or line.isspace() or self.isPreProcessorLine(line):
+            if  line =='' or line.isspace() or 'ORG' in line:
                 continue
-            newLine = Line( int(hex(viritualLineNumber), 16) + self.startAddress, line, i)
-            result.append(newLine)
+
+            if 'EXTDEF' in line:
+                defs = line.replace('EXTDEF','')
+                for df in defs.split(','):
+                    self.extDefs[df.strip()] = None
+                continue
+
+            if 'EXTREF' in line:
+                refs = line.replace('EXTREF','')
+                refs = refs.split(',')
+                for rf in refs:
+                    self.extRefs[rf.strip()] = [] #places to be modfied when this rf is defined
+                continue
+
+            newLine = Line(int(hex(viritualLineNumber), 16) + self.startAddress, line, i)
+            self.lines.append(newLine)
 
             if newLine.label != '':
-                symTable[newLine.label] = symbol(newLine.address,[])
+                self.symbolTable[newLine.label] = symbol(newLine.address,[])
+                if newLine.label in self.extDefs:
+                    self.extDefs[newLine.label] =  newLine.address
 
             viritualLineNumber += 1
         
-        for line in result:
-            if line.operand in symTable.keys():
-                lbl = line.operand
-                if lbl in symTable:
-                    line.hexOperand = symTable[lbl].address
-                    symTable[lbl].refs.append(line.address)
-               
+        for line in self.lines:
+            lbl = line.operand
+            if lbl in self.symbolTable: #else already 0
+                line.hexOperand = self.symbolTable[lbl].address
+                self.symbolTable[lbl].refs.append(line.address)
+            elif lbl in self.extRefs:
+                self.extRefs[lbl].append(line.address)
+         
             if line.opcode.lower() == 'skipcond':
                 line.hexOperand =int(line.operand,16)
 
@@ -96,6 +97,3 @@ class output:
             else:
                 line.hexaOutput = "0x{0:0=1X}{1:0=3X}".format(
                     InstructionSet[line.opcode.lower()],line.hexOperand)
-
-
-        self.lines,self.symbolTable = result,symTable
