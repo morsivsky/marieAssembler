@@ -63,5 +63,7 @@ def main(paths):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:]) #ex: python main.py example2.txt example3.txt example4.txt
+    #main(sys.argv[1:]) #ex: python main.py example2.txt example3.txt example4.txt
+    main(['example.txt'])
+    #main(['example2.txt','example3.txt','example4.txt',])
     print("done")

@@ -92,8 +92,10 @@ class output:
             if line.opcode.lower() == 'skipcond':
                 line.hexOperand =int(line.operand,16)
 
-            if line.opcode.lower() in ['hex','dec']:
+            if line.opcode.lower() == 'dec':
                 line.hexaOutput = "0x{0:0=4X}".format(int(line.operand))
+            elif line.opcode.lower() == 'hex':
+                line.hexaOutput = "0x{0:0=4}".format(int(line.operand))
             else:
                 line.hexaOutput = "0x{0:0=1X}{1:0=3X}".format(
                     InstructionSet[line.opcode.lower()],line.hexOperand)
